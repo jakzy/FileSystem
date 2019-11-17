@@ -150,7 +150,7 @@ protected:
 	map <string, Object*>* catalogDescriptor; 
 	/*!file name + file pointer*/
 public:
-	Catalog(ID user, map<ID, UserAccess> acc, UserAccess def, string name, Catalog* cat, size_t virtAdr, map <string, Object*>* catDesc, size_t sz = 0 )
+	Catalog(ID user, map<ID, UserAccess> acc, UserAccess def, string name, Catalog* cat, size_t virtAdr, map <string, Object*>* catDesc, size_t sz = 0)
 	{
 		owner = user;
 		size = sz;
@@ -159,6 +159,7 @@ public:
 		fileDescriptor = { name, cat };
 		catalogDescriptor = catDesc;
 		catDesc = nullptr;
+		//
 	}
 	string Info();
 	void Read(ID user);
