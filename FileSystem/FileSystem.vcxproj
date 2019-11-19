@@ -151,12 +151,15 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="Dialog.h" />
     <ClInclude Include="FileSystem.h" />
+    <ClInclude Include="Menu.h" />
     <ClInclude Include="Object.h" />
     <ClInclude Include="pch.h" />
     <ClInclude Include="TimeNDate.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="Dialog.cpp" />
     <ClCompile Include="FileSystem.cpp" />
     <ClCompile Include="MAIN.cpp" />
     <ClCompile Include="Object.cpp" />

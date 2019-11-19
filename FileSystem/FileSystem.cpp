@@ -41,7 +41,6 @@ void FileSystem::DeleteFrom_UserTable(ID user) {
 		//удалить пользователя: удалить из таблицы пользователей, СДЕЛАТЬ АДМИНА НОВЫМ ВЛАДЕЛЬЦЕМ ВСЕХ ФАЙЛОВ, удалить из списков управления доступом для всех файлов системы. НЕЛЬЗЯ УДАЛИТЬ АДМИНА
 	}
 }
-
 void FileSystem::Edit_UserTable(ID id, User newInfo) {
 	if (curUser != ADMIN)
 		throw std::exception("Only ADMIN can edit user table");
@@ -54,7 +53,6 @@ void FileSystem::Edit_UserTable(ID id, User newInfo) {
 			(*iter).second = newInfo;
 	}
 }
-
 void FileSystem::ChangeFileType(File& file) {
 	map<ID, User>::iterator iter;
 	iter = userTable.find(curUser);
@@ -72,7 +70,6 @@ void FileSystem::ChangeFileType(File& file) {
 string FileSystem::Info() {
 	return "empty";
 }
-
 void FileSystem::Rename(string oldName, string newName) {
 	try {
 		(*curCatalog).Rename(oldName, newName, curUser);
@@ -81,7 +78,6 @@ void FileSystem::Rename(string oldName, string newName) {
 		throw ex;
 	}
 }
-
 void FileSystem::Delete(string name) {
 	map <string, Object*>::iterator iter;
 	iter = (*curCatalog).GetCatalogDescriptor()->find(name);
@@ -96,7 +92,6 @@ void FileSystem::Delete(string name) {
 		}
 	}
 }
-
 string FileSystem::GoTo(string& input) {
 	size_t i = input.find_first_of('/');
 	string next = input.substr(i, input.find_first_of('/', i + 1));

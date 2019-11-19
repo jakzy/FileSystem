@@ -4,12 +4,8 @@ using std::vector;
 using std::pair;
 using std::string;
 
-
 int main()
 {
-	//create a new system or download an old one?
-	
-	//create a new system
 	FileSystem system;
 	//std::cout << system.Info();
 	UserAccess guests = { false, false, false };
@@ -23,12 +19,5 @@ int main()
 	system.GetCurCat()->Write(system.GetCurUser(), ptr);
 	std::cout<<system.GetCurCat()->Show();
 	std::cout << system.GetCurCat()->Info();
-	//download an od system
-	
-
-	//do some stuff with the system
-
-	//finish work (rewrite info in the file)
-	
 	return 0;
 }

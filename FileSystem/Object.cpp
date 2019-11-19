@@ -101,7 +101,9 @@ size_t Catalog::CatalogNum() {
 string Catalog::Info() {
 	std::ostringstream out;
 	out << "Catalog name: \"" << fileDescriptor.first << "\"" << std::endl;
-	out << "Located in: \"" << (*fileDescriptor.second).fileDescriptor.first << "\"" << std::endl;
+	if (fileDescriptor.second != nullptr)
+		out << "Located in: \"" << fileDescriptor.second->fileDescriptor.first << "\"" << std::endl;
+	else out << "This is ROOT catalog" << std::endl;
 	out << "Catalog size: " << size << std::endl;
 	out << "Objects in this catalog: " << CatalogNum() << " catalogs, "<< (catalogDescriptor->size()- CatalogNum()) << " files."<< std::endl;
 	return out.str();
@@ -134,10 +136,10 @@ string Catalog::Show() {
 		out << ObjectName[(*iter).second->iAm()] << " \"" << iter->first << "\"" << std::endl;
 	return out.str();
 }
-void Catalog::Copy() {
+void Catalog::Copy(string object) {
 
 }
-void Catalog::Replace() {
+void Catalog::Transfer(string object, string newCat) {
 
 }
 void Catalog::Delete() {

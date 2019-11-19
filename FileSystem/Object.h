@@ -158,12 +158,11 @@ public:
 	Catalog(ID user, map<ID, UserAccess> acc, Catalog* cat, size_t virtAdr, UserAccess def = { 0,0,0 }, map <string, Object*>* catDesc = new map <string, Object*>, string name = "/", size_t sz = 0)
 	{
 		owner = user;
-		size = sz;
 		access = acc;
 		others_access = def;
 		fileDescriptor = { name, cat };
 		catalogDescriptor = catDesc;
-		catDesc = nullptr;
+		size = sz;
 		//
 	}
 	string Info();
@@ -173,8 +172,8 @@ public:
 	void Run(string to, ID user); //пройти через каталог
 
 	string Show();
-	void Copy();
-	void Replace();
+	void Copy(string object);
+	void Transfer(string object, string newCat);
 	void Delete();
 	void Rename(string, string, ID);
 
