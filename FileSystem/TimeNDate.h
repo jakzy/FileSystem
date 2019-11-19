@@ -4,6 +4,8 @@
 #include <sstream>
 #include <Windows.h>
 
+using std::string;
+
 class Time {
 private:
 	size_t sec, min, hour;

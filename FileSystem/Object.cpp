@@ -1,17 +1,6 @@
-#include "pch.h"
+
 #include "Object.h"
 
-
-Object::Object()
-{
-
-}
-
-
-Object::~Object()
-{
-
-}
 
 UserAccess Object::GetAccess(ID user) {
 	map<ID, UserAccess>::iterator iter = access.find(user);
@@ -24,18 +13,24 @@ UserAccess Object::GetAccess(ID user) {
 string File::Info() {
 	std::ostringstream out;
 	out << "File name: \"" << fileDescriptor.first << "\"" << std::endl;
-	out << "Located in: \"" << fileDescriptor.second << "\"" << std::endl;
+	out << "Located in: \"" << fileDescriptor.second->GetFileDescriptor().first << "\"" << std::endl;
 	out << "File size: " << size  << std::endl;
-	out << "Created: " << created.Show << std::endl;
-	out << "Modified: " << modified.Show << std::endl;
+	out << "Created: " << created.Show() << std::endl;
+	out << "Modified: " << modified.Show() << std::endl;
 	out << "Owner: ID" << owner << std::endl;
 	return out.str();
 }
-void File::Read() {
+void File::Read(ID user) {
+	if (GetAccess(user).read) {
 
+	}
+	else throw std::exception("You can't read from this file");
 }
-void File::Write() {
+void File::Write(ID user) {
+	if (GetAccess(user).write) {
 
+	}
+	else throw std::exception("You can't write into this file");
 }
 void File::Run(ID user) {
 	UserAccess info;
@@ -68,7 +63,7 @@ string File::ShowAccess(ID user) {
 	return out.str();
 }
 bool File::ChangeAccess(ID user) {
-
+	return false;
 }
 void File::Delete() {
 	streamDescriptor->clear();
@@ -77,7 +72,7 @@ void File::Delete() {
 bool EncryptedFile::EncAccess(ID user) {
 	vector<ID>::iterator iter;
 	iter = accesibleFor.begin();
-	for (iter; iter != accesibleFor.end; iter++)
+	for (iter; iter != accesibleFor.end(); iter++)
 	{
 		if ((*iter) == user)
 			return true;
@@ -111,14 +106,24 @@ string Catalog::Info() {
 	out << "Objects in this catalog: " << CatalogNum() << " catalogs, "<< (catalogDescriptor->size()- CatalogNum()) << " files."<< std::endl;
 	return out.str();
 }
-void Catalog::Read() {
-
+void Catalog::Read(ID user) {
+	if (GetAccess(user).read)
+		std::cout << Show();
+	else throw std::exception("You can't read this catalog");
 }
-void Catalog::Write() {
-	//add file&
+void Catalog::Write(ID user, Object* added) {
+	if (GetAccess(user).write) {
+		pair<string, Object*> add = {added->GetFileDescriptor().first, added};
+		GetCatalogDescriptor()->insert(add);
+		IncSZ(added->GetSize());
+	}
+	else throw std::exception("You can't write into this catalog");
 }
-void Catalog::Run() {
+void Catalog::Run(string to, ID user) {
+	if (GetAccess(user).run) {
 
+	}
+	else throw std::exception("You can't go through this catalog");
 }
 string Catalog::Show() {
 	map <string, Object*>::iterator iter;

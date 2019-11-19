@@ -19,6 +19,7 @@ ID FileSystem::AddTo_UserTable(User newUser) {
 		throw std::exception("Only ADMIN can edit user table");
 	else {
 		SYSTEMTIME t;
+		GetSystemTime(&t);
 		srand(t.wSecond);
 		ID id = 0;
 		do {
@@ -69,7 +70,7 @@ void FileSystem::ChangeFileType(File& file) {
 	}
 }
 string FileSystem::Info() {
-
+	return "empty";
 }
 
 void FileSystem::Rename(string oldName, string newName) {
@@ -83,15 +84,15 @@ void FileSystem::Rename(string oldName, string newName) {
 
 void FileSystem::Delete(string name) {
 	map <string, Object*>::iterator iter;
-	iter = (*curCatalog).GetCatalogDescriptor->find(name);
-	if (iter == (*curCatalog).GetCatalogDescriptor->end())
+	iter = (*curCatalog).GetCatalogDescriptor()->find(name);
+	if (iter == (*curCatalog).GetCatalogDescriptor()->end())
 		throw std::exception("This object doesnt exist in this catalog");
 	else {
 		if (curUser != (*iter).second->GetOwner())
 			throw std::exception("Only owner can delete this object");
 		else {
 			(*iter).second->Delete();
-			(*curCatalog).GetCatalogDescriptor->erase(name);
+			(*curCatalog).GetCatalogDescriptor()->erase(name);
 		}
 	}
 }
@@ -106,12 +107,12 @@ string FileSystem::GoTo(string& input) {
 	}
 	else{
 		map <string, Object*>::iterator iter;
-		iter = (*curCatalog).GetCatalogDescriptor.find(next);
-		if (next == (*curCatalog).GetCatalogDescriptor.end()) {
+		iter = (*curCatalog).GetCatalogDescriptor()->find(next);
+		if (iter == (*curCatalog).GetCatalogDescriptor()->end()) {
 			throw std::exception("Incorrect file adress");
 		}
 		else {
-			if ( (input.find_first_of('/') != input.npos) && (iter->second->iAm == Catalog_) ) {
+			if ( (input.find_first_of('/') != input.npos) && (iter->second->iAm() == Catalog_) ) {
 				curCatalog = dynamic_cast<Catalog*>(iter->second);
 				GoTo(input);
 			}

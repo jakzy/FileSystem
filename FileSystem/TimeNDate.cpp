@@ -5,6 +5,7 @@ using std::string;
 
 Time::Time(){
 	SYSTEMTIME time;
+	GetSystemTime(&time);
 	sec = time.wSecond;
 	min = time.wMinute;
 	hour = time.wHour;
@@ -18,6 +19,7 @@ string Time::Show() {
 Date::Date()
 {
 	SYSTEMTIME t;
+	GetSystemTime(&t);
 	time = Time();
 	day = t.wDay;
 	month = t.wMonth;
@@ -25,6 +27,6 @@ Date::Date()
 }
 string Date::Show() {
 	std::ostringstream out;
-	out << day << "/" << month << "/" << year << "\t" << time.Show;
+	out << day << "/" << month << "/" << year << "\t" << time.Show();
 	return out.str();
 }
