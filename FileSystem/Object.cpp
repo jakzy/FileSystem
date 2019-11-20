@@ -3,11 +3,13 @@
 
 
 UserAccess Object::GetAccess(ID user) {
-	map<ID, UserAccess>::iterator iter = access.find(user);
-	if (iter == access.end())
-		return others_access;
-	else
-		return iter->second;
+	vector<pair<ID, UserAccess>>::iterator iter = access.begin();
+	for (iter; iter != access.end(); iter++)
+	{
+		if (iter->first == user)
+			return iter->second;
+	}
+	return	others_access;
 }
 
 string File::Info() {

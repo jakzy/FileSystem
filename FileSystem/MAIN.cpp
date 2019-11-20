@@ -7,7 +7,6 @@ using std::string;
 int main()
 {
 	FileSystem system;
-	//std::cout << system.Info();
 	UserAccess guests = { false, false, false };
 	UserAccess superUser = { true, true, true };
 	map<ID, UserAccess> acc;

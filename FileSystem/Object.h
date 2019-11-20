@@ -32,7 +32,7 @@ class Object
 protected:
 	size_t size;
 	ID owner;
-	map <ID, UserAccess> access;
+	vector < pair<ID, UserAccess> > access;
 	/*! user ID + his abilities*/
 	UserAccess others_access;
 	/*! abilities for other users*/
@@ -47,7 +47,7 @@ public:
 	virtual void Write(ID user) = 0;
 	virtual void Run(string to, ID user) = 0;*/
 
-	const map <ID, UserAccess>& GetAccessTable() const { return access; }
+	const vector< pair<ID, UserAccess> >& GetAccessTable() const { return access; }
 	UserAccess GetAccess(ID user);
 	pair <string, Catalog*>& GetFileDescriptor() { return fileDescriptor; }
 	const unsigned GetSize() { return size; }
@@ -106,7 +106,7 @@ protected:
 		 modified;
 public:
 	//File() = delete;
-	File(ID user, map<ID, UserAccess> acc, UserAccess def, vector<Stream>* strDesc, 
+	File(ID user, vector< pair<ID, UserAccess> > acc, UserAccess def, vector<Stream>* strDesc, 
 		size_t sz, string name, Catalog* cat, Date creat = Date(), Date modi = Date())
 	{
 		created = creat;
@@ -155,7 +155,7 @@ protected:
 	map <string, Object*>* catalogDescriptor; 
 	/*!file name + file pointer*/
 public:
-	Catalog(ID user, map<ID, UserAccess> acc, Catalog* cat, size_t virtAdr, UserAccess def = { 0,0,0 }, map <string, Object*>* catDesc = new map <string, Object*>, string name = "/", size_t sz = 0)
+	Catalog(ID user, vector< pair<ID, UserAccess>> acc, Catalog* cat, size_t virtAdr, UserAccess def = { 0,0,0 }, map <string, Object*>* catDesc = new map <string, Object*>, string name = "/", size_t sz = 0)
 	{
 		owner = user;
 		access = acc;
