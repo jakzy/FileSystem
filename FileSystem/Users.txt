@@ -1,0 +1,7 @@
+0	ADMIN	1
+1	guest	0
+2	Prog1	2
+3	Tester	3
+4	Manager	5
+5	Cleaner	7
+6	Boss	11

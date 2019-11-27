@@ -11,6 +11,9 @@ private:
 	size_t sec, min, hour;
 public:
 	Time();
+	Time(size_t hour, size_t min, size_t sec);
+	void SetTime(size_t hour, size_t min, size_t sec);
+
 	string Show();
 };
 
@@ -22,5 +25,6 @@ private:
 		   year;
 public:
 	Date();
+	void SetDate(size_t hour, size_t min, size_t sec, size_t dy, size_t month, size_t year);
 	string Show();
 };

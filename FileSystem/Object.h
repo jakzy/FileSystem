@@ -9,6 +9,8 @@
 
 #define ID int
 
+//int struct_offset = 0;
+
 using std::string;
 using std::pair;
 using std::vector;
@@ -52,20 +54,26 @@ public:
 	pair <string, Catalog*>& GetFileDescriptor() { return fileDescriptor; }
 	const unsigned GetSize() { return size; }
 	const ID GetOwner() { return owner; }
+	ID ChangeOwner(ID newOwner, ID curUser, ID adm)
+	{
+		if ((curUser == owner) || (curUser == adm))
+			owner = newOwner;
+		else
+			throw std::exception("You aren't allowed to change owner of this file");
+	}
 	void IncSZ(size_t a) { size += a; }
 	virtual void Delete() = 0;
 };
-
 
 class User {
 protected:
 	string name;
 	int key;
-	vector <Object*> myObjects;
+	vector <Object*> *myObjects;
 
 	void AddObject(Object* newObj) {
 		try {
-			myObjects.push_back(newObj);
+			myObjects->push_back(newObj);
 		}
 		catch (std::exception &ex) {
 			throw ex;
@@ -73,20 +81,33 @@ protected:
 	}
 	void DelObject(string name) {
 		vector<Object*>::iterator iter;
-		iter = myObjects.begin();
-		size_t sz = myObjects.size();
-		while (iter != myObjects.end())
+		iter = myObjects->begin();
+		size_t sz = myObjects->size();
+		while (iter != myObjects->end())
 		{
 			if ((*iter)->GetFileDescriptor().first == name) {
-				myObjects.erase(iter);
+				myObjects->erase(iter);
 			}
 			iter++;
 		}
-		if (sz == myObjects.size())
+		if (sz == myObjects->size())
 			throw std::exception("File wasnt found and deleted");
 	}
 public:
-	User(string nm, int kk) : name(nm), key(kk) {}
+	User(string nm, int kk ) : name(nm), key(kk) 
+	{
+		myObjects = new vector <Object*>;
+	}
+	~User()
+	{
+		//delete myObjects;
+	}
+	string GetName() { return name; }
+	int GetKey() { return key; }
+	vector <Object*> *GetObjects()
+	{
+		return myObjects;
+	}
 };
 
 class Stream {
@@ -106,8 +127,8 @@ protected:
 		 modified;
 public:
 	//File() = delete;
-	File(ID user, vector< pair<ID, UserAccess> > acc, UserAccess def, vector<Stream>* strDesc, 
-		size_t sz, string name, Catalog* cat, Date creat = Date(), Date modi = Date())
+	File(ID user, Catalog* cat, vector< pair<ID, UserAccess> > acc, UserAccess def, vector<Stream>* strDesc, 
+		size_t sz, string name,  Date creat = Date(), Date modi = Date())
 	{
 		created = creat;
 		modified = modi;
@@ -139,23 +160,25 @@ public:
 class EncryptedFile :File
 {
 private:
-	vector <ID> accesibleFor;
+	vector <ID> accessibleFor;
+	//int control;
 public:
 	string ShowAccess(ID user);
 	bool EncAccess(ID user);
 	int iAm() { return EncryptedFile_;}
 
-	vector <ID> &GetEncAccess() { return accesibleFor; }
+	vector <ID> &GetEncAccess() { return accessibleFor; }
 };
 
 class Catalog : public Object
 {
 protected:
-	size_t virtualAdress;
+	size_t virtualAdress; //number of block
 	map <string, Object*>* catalogDescriptor; 
 	/*!file name + file pointer*/
 public:
-	Catalog(ID user, vector< pair<ID, UserAccess>> acc, Catalog* cat, size_t virtAdr, UserAccess def = { 0,0,0 }, map <string, Object*>* catDesc = new map <string, Object*>, string name = "/", size_t sz = 0)
+	Catalog(ID user,  Catalog* cat, vector< pair<ID, UserAccess>> acc,UserAccess def = { 0,0,0 }, size_t virtAdr = 0,  
+		 string name = "/", size_t sz = 0, map <string, Object*>* catDesc = new map <string, Object*>)
 	{
 		owner = user;
 		access = acc;
@@ -163,6 +186,7 @@ public:
 		fileDescriptor = { name, cat };
 		catalogDescriptor = catDesc;
 		size = sz;
+		virtualAdress = virtAdr;
 		//
 	}
 	string Info();

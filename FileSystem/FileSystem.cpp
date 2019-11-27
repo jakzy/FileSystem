@@ -1,5 +1,8 @@
 ﻿#include"FileSystem.h"
 
+using std::vector;
+using std::map;
+
 void FileSystem::Start(ID user) {
 	map<ID, User>::iterator iter;
 	iter = userTable.find(user);
@@ -13,6 +16,19 @@ void FileSystem::Finish() {
 	curUser = guest;
 	curCatalog = root;
 	//save system
+}
+
+string FileSystem::ShowUserTable()
+{
+	map <ID, User>::iterator iter = userTable.begin();
+	std::ostringstream out;
+	for (iter; iter!=userTable.end(); iter++)
+	{
+		out << iter->first << "\t" << iter->second.GetName();
+		curUser == ADMIN ? (out << "\t" << iter->second.GetKey()) : out;
+		out << std::endl;
+	}
+	return out.str();
 }
 ID FileSystem::AddTo_UserTable(User newUser) {
 	if (curUser != ADMIN)
@@ -32,13 +48,39 @@ ID FileSystem::AddTo_UserTable(User newUser) {
 		return id;
 	}
 }
+ID FileSystem::AddTo_UserTable(ID id, User newUser)
+{
+	if (curUser != ADMIN)
+		throw std::exception("Only ADMIN can edit user table");
+	else {
+		userTable.insert({ id, newUser });
+		return id;
+	}
+}
 void FileSystem::DeleteFrom_UserTable(ID user) {
 	if (curUser != ADMIN)
 		throw std::exception("Only ADMIN can edit user table");
 	else {
 		if (user == ADMIN)
 			throw std::exception("You can't delete ADMIN");
-		//удалить пользователя: удалить из таблицы пользователей, СДЕЛАТЬ АДМИНА НОВЫМ ВЛАДЕЛЬЦЕМ ВСЕХ ФАЙЛОВ, удалить из списков управления доступом для всех файлов системы. НЕЛЬЗЯ УДАЛИТЬ АДМИНА
+		else {
+			map <ID, User>::iterator iter;
+			iter = userTable.find(user);
+			if (iter == userTable.end())
+				throw std::exception("User with such ID doesn't exist");
+			else {
+				vector <Object*>::iterator itFile = iter->second.GetObjects()->begin();
+				vector <Object*>* adm = userTable.find(ADMIN)->second.GetObjects();
+				for (itFile; itFile != iter->second.GetObjects()->end(); itFile++) {
+					(**itFile).ChangeOwner(ADMIN, curUser, ADMIN);
+					adm->push_back(*itFile);
+					iter->second.GetObjects()->erase(itFile);
+				}
+				//удалить из списков управления доступом для всех файлов системы
+				userTable.erase(iter);
+			}
+
+		}
 	}
 }
 void FileSystem::Edit_UserTable(ID id, User newInfo) {
@@ -52,6 +94,15 @@ void FileSystem::Edit_UserTable(ID id, User newInfo) {
 		else
 			(*iter).second = newInfo;
 	}
+}
+
+void FileSystem::ChangeCurUser(ID newID)
+{
+	map <ID, User>::iterator iter = userTable.find(newID);
+	if (iter == userTable.end())
+		throw std::exception("This user doesn't exist in this system");
+	else
+		curUser = newID;
 }
 void FileSystem::ChangeFileType(File& file) {
 	map<ID, User>::iterator iter;

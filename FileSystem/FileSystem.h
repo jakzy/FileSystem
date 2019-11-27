@@ -25,30 +25,35 @@ public:
 	
 	FileSystem() {
 		curUser = ADMIN;
-		map<ID, UserAccess> def;
+		vector< pair<ID, UserAccess> > def;
 		UserAccess acc = { 1,1,1 };
-		def.insert(pair<ID, UserAccess>( ADMIN, acc ));
+		def.push_back(pair<ID, UserAccess>( ADMIN, acc ));
 		map <string, Object*>* catDesc_temp = new map <string, Object*>;
-		root = new Catalog (ADMIN, def, nullptr, 0,  acc);
-		//Catalog(ID user, map<ID, UserAccess> acc, UserAccess def, string name, Catalog* cat, size_t virtAdr, map <string, Object*>* catDesc, size_t sz = 0)
+		root = new Catalog (ADMIN, nullptr, def, acc);
+
 		curCatalog = root;
 		buf = nullptr;
-		userTable.insert({ 0, {"ADMIN",1} }); //KEYS???????????
-		userTable.insert({ 1, {"guest",0} });
+		//userTable.insert({ 0, {"ADMIN",1} }); //KEYS???????????
+		//userTable.insert({ 1, {"guest",0} });
 	}
 	
 	Catalog* GetRoot() { return root; }
 	Catalog* GetCurCat() { return curCatalog; }
+	map <ID, User>& GetUserTable() { return userTable; };
 	ID GetCurUser() { return curUser; }
+	ID GetAdmin() {return ADMIN;}
 	size_t GetSize() { return size; }
 	size_t GetCapacity() { return capacity; }
 	void Start(ID user);
 	void Finish();
 	//!Edit user table
+	string ShowUserTable();
 	ID AddTo_UserTable(User);
+	ID AddTo_UserTable(ID, User);
 	void DeleteFrom_UserTable(ID user);
 	void Edit_UserTable(ID, User);
 
+	void ChangeCurUser(ID newUser);
 	void ChangeFileType(File&);
 	string Info();
 	void Rename(string oldName, string newName);

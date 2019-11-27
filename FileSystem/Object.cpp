@@ -40,7 +40,7 @@ void File::Run(ID user) {
 	if (info.run)
 		std::cout << "You successfully ran this incredible file. That was facinating!" << std::endl;
 	else
-		throw std::exception("This file isn't accessible for you to run");
+		throw std::exception("ACCESS DENIED");
 }
 
 void File::Create() {
@@ -73,8 +73,8 @@ void File::Delete() {
 
 bool EncryptedFile::EncAccess(ID user) {
 	vector<ID>::iterator iter;
-	iter = accesibleFor.begin();
-	for (iter; iter != accesibleFor.end(); iter++)
+	iter = accessibleFor.begin();
+	for (iter; iter != accessibleFor.end(); iter++)
 	{
 		if ((*iter) == user)
 			return true;
