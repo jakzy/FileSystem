@@ -14,34 +14,70 @@ void ShowMenu(size_t i)
 		std::cout << MENU_SET[i][k]<<std::endl;
 	}
 }
-void RunMenu(FileSystem cur, size_t i)
+void RunMenu(FileSystem &cur, size_t i)
 {
+	
 	int choise = 1;
 	do {
 		system("cls");
+		std::cout << "Current user:\t" << cur.GetCurUser() << std::endl;
+		std::cout << "Current catalog:\t" << cur.GetCurCat()->GetFileDescriptor().first << std::endl;
+		std::cout << cur.GetCurCat()->Show();
+		std::cout << "Buf:\t";
+		cur.GetBuf() == nullptr?(std::cout<<"empty" << std::endl):
+			(std::cout << ObjectName[cur.GetBuf()->GetFileDescriptor().second->iAm()] << "\t" << cur.GetBuf()->GetFileDescriptor().first << std::endl);
+		std::cout << "******************************************" << std::endl;
 		ShowMenu(i);
 		std::cout << ">>";
 		std::cin >> choise;
 		if (std::cin.eof()) {
-			std::cout << "You ll return to main menu" << std::endl;
+			switch (i) {
+			case 0:
+				break;
+			case 4:
+				std::cout << "You ll return to FILE menu" << std::endl;
+				break;
+			case 5:
+				std::cout << "You ll return to FILE menu" << std::endl;
+				break;
+			case 6:
+				std::cout << "You ll return to FILE menu" << std::endl;
+				break;
+			default:
+				std::cout << "You ll return to main menu" << std::endl;
+				break;
+			}
 			choise = -1;
 		}
 		else
-			if (choise < MENU_SET[i].size())
+			if ((choise < MENU_SET[i].size()) && (choise > 0))
 			{
 				MENU_VECTOR[i][choise-1](cur);
-				std::cout << "Press ENTER to continue";
-				std::getchar();
+				//std::cout << "Press ENTER to continue";
+				//std::getchar();
 			}
 		std::cin.clear();
 		std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
 	} while (choise > 0);
-	if (i == 0) {
+	if (i == system_) {
 		cur.SaveSystem();
 		throw std::exception("System saved, work finished");
 	}
 	else {
-		RunMenu(cur, 0);
+		switch (i) {
+		case WOfile_:
+			RunMenu(cur, file_);
+			break;
+		case ROfile_:
+			RunMenu(cur, file_);
+			break;
+		case access_:
+			RunMenu(cur, file_);
+			break;
+		default:
+			RunMenu(cur, system_);
+			break;
+		}
 	}
 }
 
@@ -75,19 +111,21 @@ void ChangeCurUser(FileSystem& cur)
 	catch (std::exception &ex) {
 		throw ex;
 	}
+	std::cout << cur.GetUserTable().find(id)->second.GetName() << ", welcome!"<<std::endl;
 	std::cout << "New current user's ID: " << cur.GetCurUser() << std::endl;
+	std::getchar();
 }
 void ChangeCurCat(FileSystem& cur)
 {
-	std::cout << "Enter adress of a new current catalog (start witn \"/\" to use absolute adress): ";
+	std::cout << "Enter adress of a new current catalog (start with \"/\" to use absolute adress): ";
 	string CatAdress;
 	std::cin >> CatAdress;
 	try {
 		cur.GoTo(CatAdress);
-		std::cout;///////////////////
+		std::cout;
 	}
 	catch (std::exception &ex) {
-		throw ex;
+		std::cout << ex.what() << std::endl;
 	}
 
 }
@@ -100,6 +138,7 @@ void SaveSystem(FileSystem& cur)
 void ShowUserTable(FileSystem& cur)
 {
 	std::cout << cur.ShowUserTable();
+	std::getchar();
 }
 void AddUser(FileSystem& cur)
 {
@@ -109,18 +148,23 @@ void AddUser(FileSystem& cur)
 	std::cin >> name;
 	std::cout << "Enter new user's key: ";
 	std::cin >> key;
-	cur.AddTo_UserTable(User(name, key));
+	try {
+		cur.AddTo_UserTable(User(name, key));
+	}
+	catch (std::exception &ex) {
+		std::cout << ex.what() << std::endl;
+	}
 }
 void DeleteUser(FileSystem& cur)
 {
 	int id;
-	std::cout << "Enter new user's ID: ";
+	std::cout << "Enter ID of the user to delete: ";
 	std::cin >> id;
 	try {
 		cur.DeleteFrom_UserTable(id);
 	}
 	catch (std::exception &ex) {
-		throw ex;
+		std::cout << ex.what() << std::endl;
 	}
 }
 void EditUser(FileSystem& cur)
@@ -137,44 +181,48 @@ void EditUser(FileSystem& cur)
 		cur.Edit_UserTable(id, User(name, key));
 	}
 	catch (std::exception &ex) {
-		throw ex;
+		std::cout << ex.what() << std::endl;
 	}
 }
 
 //string menu_catalog[]
 void ShowCatalog(FileSystem& system)
 {
-	system.GetCurCat()->Show();
+	std::cout << system.GetCurCat()->Show();
 }
 void RenameObject(FileSystem& system)
 {
 	string old_name, new_name;
-	std::cout << "Enter current file name:";
+	std::cout << "Enter current object name:";
 	std::cin >> old_name;
-	std::cout << "Enter new file name:";
+	std::cout << "Enter new object name:";
 	std::cin >> new_name;
 	try {
-		system.GetCurCat()->Rename(old_name, new_name, system.GetCurUser());
+		system.Rename(old_name, new_name);
 	}
 	catch (std::exception& ex) {
-		throw ex;
+		std::cout << ex.what() << std::endl;
 	}
 }
 void CopyObject(FileSystem& system)
 {
-	
+	std::cout << "Come here later" << std::endl;
+	std::getchar();
 }
 void TransferObject(FileSystem& system)
 {
-
+	std::cout << "Come here later" << std::endl;
+	std::getchar();
 }
 void AddFromBuf(FileSystem& system)
 {
-
+	std::cout << "Come here later" << std::endl;
+	std::getchar();
 }
 void AddNewObject(FileSystem& system)
 {
-
+	std::cout << "Come here later" << std::endl;
+	std::getchar();
 }
 void ShowCatInfo(FileSystem& system)
 {
@@ -184,82 +232,99 @@ void ShowCatInfo(FileSystem& system)
 //string menu_file[]
 void OpenRead(FileSystem& cur)
 {
-
+	std::cout << "Come here later" << std::endl;
+	std::getchar();
 }
 void OpenWrite(FileSystem& cur)
 {
-
+	std::cout << "Come here later" << std::endl;
+	std::getchar();
 }
 void Run(FileSystem& cur)
 {
-
+	std::cout << "Come here later" << std::endl;
+	std::getchar();
 }
 void ShowInfo(FileSystem& cur)
 {
-
+	cur.GetBuf()->Info();
 }
 void ShowCurAccess(FileSystem& cur)
 {
-
+	std::cout << "Come here later" << std::endl;
+	std::getchar();
 }
 void EditUserAccess(FileSystem& cur)
 {
-
+	std::cout << "Come here later" << std::endl;
+	std::getchar();
 }
 void ChangeType(FileSystem& cur)
 {
-
+	std::cout << "Come here later" << std::endl;
+	std::getchar();
 }
 
 //string menu_WOfile[]
 void AddInfo(FileSystem& cur)
 {
-
+	std::cout << "Come here later" << std::endl;
+	std::getchar();
 }
 void ClearFile(FileSystem& cur)
 {
-
+	std::cout << "Come here later" << std::endl;
+	std::getchar();
 }
 void RewriteFile(FileSystem& cur)
 {
-
+	std::cout << "Come here later" << std::endl;
+	std::getchar();
 }
 
 //string menu_ROfile[]
 void ShowFile(FileSystem& cur)
 {
-
+	std::cout << "Come here later" << std::endl;
+	std::getchar();
 }
 
 void CloseFile(FileSystem& cur)
 {
-
+	std::cout << "Come here later" << std::endl;
+	std::getchar();
 }
 
 //string menu_access[]
 void AddAccess(FileSystem& cur)
 {
-
+	std::cout << "Come here later" << std::endl;
+	std::getchar();
 }
 void ChangeAccess(FileSystem& cur)
 {
-
+	std::cout << "Come here later" << std::endl;
+	std::getchar();
 }
 void ChangeGuestAccess(FileSystem& cur)
 {
-
+	std::cout << "Come here later" << std::endl;
+	std::getchar();
 }
 void DeleteAccess(FileSystem& cur)
 {
-
+	std::cout << "Come here later" << std::endl;
+	std::getchar();
 }
 
 //string menu_ENCaccess[]
 void AddEncAccess(FileSystem& cur)
 {
-
+	std::cout << "Come here later" << std::endl;
+	std::getchar();
 }
 void DeleteEncAccess(FileSystem& cur)
 {
-
+	std::cout << "Come here later" << std::endl;
+	std::getchar();
 }

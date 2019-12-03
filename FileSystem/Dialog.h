@@ -3,7 +3,7 @@
 #include "Menu.h"
 
 void ShowMenu(size_t i);
-void RunMenu(FileSystem cur, size_t i);
+void RunMenu(FileSystem &cur, size_t i);
 
 //string menu_system[]
 void SystemStat(FileSystem& cur);

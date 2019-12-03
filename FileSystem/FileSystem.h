@@ -1,6 +1,8 @@
 #pragma once
 #include "Object.h"
 #include <random>
+#include <fstream>
+#include <cstdlib>
 
 using std::map;
 using std::vector;
@@ -37,8 +39,12 @@ public:
 		//userTable.insert({ 1, {"guest",0} });
 	}
 	
+
+	
+
 	Catalog* GetRoot() { return root; }
 	Catalog* GetCurCat() { return curCatalog; }
+	Object* GetBuf() { return buf; }
 	map <ID, User>& GetUserTable() { return userTable; };
 	ID GetCurUser() { return curUser; }
 	ID GetAdmin() {return ADMIN;}
@@ -58,8 +64,15 @@ public:
 	string Info();
 	void Rename(string oldName, string newName);
 	void Delete(string name);
+	void Add(Object* added);
 
 	void SaveSystem() {};
 
 	string GoTo(string& input);
+	
+	Catalog* Find_NewCurCat(size_t descr, Catalog* current);
+	void Fill_UserTable(string FILE_usTable);
+	void Save_UserTable(std::string FILE_usTable);
+
+	void Fill_Structure(string FILE_structure);
 };

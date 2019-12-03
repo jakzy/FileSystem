@@ -1,5 +1,7 @@
 ﻿#include"FileSystem.h"
 
+#undef max
+
 using std::vector;
 using std::map;
 
@@ -34,17 +36,12 @@ ID FileSystem::AddTo_UserTable(User newUser) {
 	if (curUser != ADMIN)
 		throw std::exception("Only ADMIN can edit user table");
 	else {
-		SYSTEMTIME t;
-		GetSystemTime(&t);
-		srand(t.wSecond);
 		ID id = 0;
-		do {
-			ID id = rand();
-			map <ID, User>::iterator iter;
-			iter = userTable.find(id);
-			if (iter == userTable.end())
-				userTable.insert({ id, newUser });
-		} while (id == 0);
+		map <ID, User>::iterator iter;
+		iter = userTable.end();
+		iter--;
+		id = iter->first + 1;
+		userTable.insert({ id, newUser });
 		return id;
 	}
 }
@@ -71,12 +68,12 @@ void FileSystem::DeleteFrom_UserTable(ID user) {
 			else {
 				vector <Object*>::iterator itFile = iter->second.GetObjects()->begin();
 				vector <Object*>* adm = userTable.find(ADMIN)->second.GetObjects();
-				for (itFile; itFile != iter->second.GetObjects()->end(); itFile++) {
-					(**itFile).ChangeOwner(ADMIN, curUser, ADMIN);
+				while ((iter->second.GetObjects()->size() > 0)&&(itFile != iter->second.GetObjects()->end())) {
+					(*itFile)->ChangeOwner(ADMIN, curUser, ADMIN);
 					adm->push_back(*itFile);
 					iter->second.GetObjects()->erase(itFile);
+					itFile++;
 				}
-				//удалить из списков управления доступом для всех файлов системы
 				userTable.erase(iter);
 			}
 
@@ -146,23 +143,185 @@ void FileSystem::Delete(string name) {
 string FileSystem::GoTo(string& input) {
 	size_t i = input.find_first_of('/');
 	string next = input.substr(i, input.find_first_of('/', i + 1));
-	input.erase(i, input.find_first_of('/', i + 1));
+	input.erase(i, next.length());
 	if (i == 0) {
 		curCatalog = root;
 		GoTo(input);
 	}
 	else{
 		map <string, Object*>::iterator iter;
-		iter = (*curCatalog).GetCatalogDescriptor()->find(next);
+		iter = (*curCatalog).GetCatalogDescriptor()->find(input);
 		if (iter == (*curCatalog).GetCatalogDescriptor()->end()) {
-			throw std::exception("Incorrect file adress");
+			throw std::exception("Invalid file adress");
 		}
 		else {
-			if ( (input.find_first_of('/') != input.npos) && (iter->second->iAm() == Catalog_) ) {
+			if ( /*(input.find_first_of('/') != input.npos) && */(iter->second->iAm() == Catalog_) ) {
 				curCatalog = dynamic_cast<Catalog*>(iter->second);
-				GoTo(input);
+				GoTo(next);
 			}
 		}
 	}
 	return input;
+}
+void FileSystem::Add(Object* added) {
+	try {
+		curCatalog->Write(curUser, added);
+	}
+	catch (std::exception &ex) {
+		throw ex;
+	}
+};
+
+Catalog* FileSystem::Find_NewCurCat(size_t descr, Catalog* current) {
+	Catalog* res = nullptr;
+	map<string, Object*>::iterator iter;
+	iter = current->GetCatalogDescriptor()->begin();
+	while ((iter != current->GetCatalogDescriptor()->end()) && (res == nullptr)) {
+		if (iter->second->iAm() == Catalog_) {
+			Catalog* cat = static_cast<Catalog*> (iter->second);
+			if (cat->Get_virtAdr() == descr)
+				res = cat;
+			else
+				res =  Find_NewCurCat(descr, cat);
+		}
+		iter++;
+	}
+	return res;
+}
+
+void FileSystem::Fill_UserTable(std::string FILE_usTable)
+{
+	std::ifstream usTable(FILE_usTable);
+	if (!usTable) {
+		throw std::exception ("Can't open this file");
+	}
+	int id, key;
+	std::string name, buf;
+	while (getline(usTable, buf)) {
+		std::istringstream cur(buf);
+		cur >> id >> name >> key;
+		AddTo_UserTable(id, User(name, key));
+	}
+	usTable.close();
+}
+void FileSystem::Save_UserTable(std::string FILE_usTable)
+{
+	std::ofstream usTable(FILE_usTable);
+	if (!usTable) {
+		throw std::exception("Can't open this file");
+	}
+	int id, key;
+	std::string name;
+	map <ID, User>::iterator iter = userTable.begin();
+	for(iter; iter != userTable.end(); iter++) {
+		usTable << iter->first << "\t" << iter->second.GetName() << "\t" << iter->second.GetKey() << std::endl;
+	}
+	usTable.close();
+}
+
+void FileSystem::Fill_Structure(std::string FILE_structure)
+{
+	std::ifstream structFile(FILE_structure);
+	std::string buf;
+	int id = 0, key = 0;
+
+
+	size_t main_block = 0;
+	while (getline(structFile, buf)) {
+		std::istringstream cur(buf);
+		size_t cur_block;
+		cur >> cur_block;
+		if (cur_block != main_block) {
+			main_block = cur_block;
+			curCatalog = (Find_NewCurCat(cur_block, root) == nullptr ? curCatalog : Find_NewCurCat(cur_block, root));
+		}
+		if (cur.str().length() - 1)
+		{
+			char type = 0;
+			cur >> type;
+			size_t size = 0;
+			ID owner = 0;
+			cur >> size >> owner;
+
+			std::istringstream str_accTable(cur.str().substr(cur.str().find('(') + 1, (cur.str().find(')') - cur.str().find('('))));
+
+			vector< pair<ID, UserAccess>> accTable;
+			while (str_accTable.peek() != ')') {
+				int id, acc;
+				str_accTable >> id >> acc;
+				UserAccess us_ac = { static_cast<bool>(acc / 100), static_cast<bool>(acc / 10 % 10), static_cast<bool>(acc % 10) };
+				accTable.push_back(pair<ID, UserAccess>(id, us_ac));
+			}
+			cur.ignore(std::numeric_limits<std::streamsize>::max(), ')');
+
+			int acc;
+			cur >> acc;
+			UserAccess others = { static_cast<bool>(acc / 100), static_cast<bool>(acc / 10 % 10), static_cast<bool>(acc % 10) };
+
+			string name;
+			cur >> name;
+
+			vector<Stream> *streamTable = new vector<Stream>;
+			std::istringstream str_Table(cur.str().substr(cur.str().rfind('(') + 1, (cur.str().find(')') - cur.str().rfind('('))));
+			size_t hour, min, sec,
+				day, month, year;
+			Date created;
+			Date modified;
+			size_t descr_offset;
+			switch (type) {
+			case 'C':
+				str_Table >> descr_offset;
+				cur.ignore(std::numeric_limits<std::streamsize>::max(), ')');
+				break;
+			case 'F':
+				while (str_Table.peek() != ')') {
+					int offset;
+					string stream_nm;
+					str_Table >> stream_nm >> offset;
+					streamTable->push_back(Stream(offset, stream_nm));
+				}
+				cur.ignore(std::numeric_limits<std::streamsize>::max(), ')');
+				cur >> hour >> min >> sec >> day >> month >> year;
+				created.SetDate(hour, min, sec, day, month, year);
+				cur >> hour >> min >> sec >> day >> month >> year;
+				modified.SetDate(hour, min, sec, day, month, year);
+				break;
+			case 'E':
+				while (str_Table.peek() != ')') {
+					int offset;
+					string stream_nm;
+					str_Table >> stream_nm >> offset;
+					streamTable->push_back(Stream(offset, stream_nm));
+				}
+				cur.ignore(std::numeric_limits<std::streamsize>::max(), ')');
+				cur >> hour >> min >> sec >> day >> month >> year;
+				created.SetDate(hour, min, sec, day, month, year);
+				cur >> hour >> min >> sec >> day >> month >> year;
+				modified.SetDate(hour, min, sec, day, month, year);
+				break;
+			default:
+				throw std::exception("ERROR TYPE. CHECK FILE");
+				break;
+			}
+			Object* newObject = nullptr;
+			if (type == 'C') {
+				//if ()
+				Catalog *newCat = new Catalog(id, GetCurCat(), accTable, others, descr_offset, name, size);
+				newObject = newCat;
+			}
+			else if (type == 'F') {
+				File *newFile = new File(id, GetCurCat(), accTable, others, streamTable, size, name, created, modified);
+				newObject = newFile;
+			}
+			else if (type == 'E') {
+				std::cout << "Come here later" << std::endl;
+				//EncryptedFile newEncFile(id, system.GetCurCat(), accTable, others, streamTable, size, name, created, modified);
+			}
+			map<ID, User>::iterator iter = userTable.find(owner);
+			iter->second.GetObjects()->push_back(newObject);
+			curCatalog->GetCatalogDescriptor()->insert(pair<string, Object*>(name, newObject));
+		}
+
+	}
+	structFile.close();
 }

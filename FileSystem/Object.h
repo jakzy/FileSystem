@@ -39,7 +39,7 @@ protected:
 	UserAccess others_access;
 	/*! abilities for other users*/
 	pair <string, Catalog*> fileDescriptor;
-	/*!file name + catalog pointer*/
+	/*!file name + parent catalog pointer*/
 public:
 	Object() {};
 	virtual ~Object() {};
@@ -104,10 +104,7 @@ public:
 	}
 	string GetName() { return name; }
 	int GetKey() { return key; }
-	vector <Object*> *GetObjects()
-	{
-		return myObjects;
-	}
+	vector <Object*> *GetObjects() { return myObjects; }
 };
 
 class Stream {
@@ -189,6 +186,9 @@ public:
 		virtualAdress = virtAdr;
 		//
 	}
+
+	size_t Get_virtAdr() { return virtualAdress; }
+
 	string Info();
 	void Read(ID user);
 	// same as show

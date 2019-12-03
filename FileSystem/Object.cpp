@@ -44,16 +44,20 @@ void File::Run(ID user) {
 }
 
 void File::Create() {
-
+	std::cout << "Come here later" << std::endl;
+	std::getchar();
 }
 void File::Close() {
-
+	std::cout << "Come here later" << std::endl;
+	std::getchar();
 }
 void File::Show() {
-
+	std::cout << "Come here later" << std::endl;
+	std::getchar();
 }
 void File::Modify() {
-
+	std::cout << "Come here later" << std::endl;
+	std::getchar();
 }
 string File::ShowAccess(ID user) {
 	UserAccess info = GetAccess(user);
@@ -116,7 +120,7 @@ void Catalog::Read(ID user) {
 	else throw std::exception("You can't read this catalog");
 }
 void Catalog::Write(ID user, Object* added) {
-	if (GetAccess(user).write) {
+	if ((GetAccess(user).write)||(user == 1)) {
 		pair<string, Object*> add = {added->GetFileDescriptor().first, added};
 		GetCatalogDescriptor()->insert(add);
 		IncSZ(added->GetSize());
@@ -133,9 +137,9 @@ string Catalog::Show() {
 	map <string, Object*>::iterator iter;
 	iter = catalogDescriptor->begin();
 	std::ostringstream out;
-	out << "Files in catalog \"" << fileDescriptor.first << "\":" << std::endl;
+	out << "Objects in catalog \"" << fileDescriptor.first << "\":" << std::endl;
 	for (iter; iter != catalogDescriptor->end(); iter++)
-		out << ObjectName[(*iter).second->iAm()] << " \"" << iter->first << "\"" << std::endl;
+		out << ObjectName[(*iter).second->iAm()] << "\t \"" << iter->first << "\"" << std::endl;
 	return out.str();
 }
 void Catalog::Copy(string object) {
