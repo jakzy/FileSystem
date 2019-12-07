@@ -61,7 +61,7 @@ void RunMenu(FileSystem &cur, size_t i)
 	} while (choise > 0);
 	if (i == system_) {
 		cur.SaveSystem();
-		throw std::exception("System saved, work finished");
+		throw std::exception("Work finished");
 	}
 	else {
 		switch (i) {
@@ -86,12 +86,12 @@ void RunMenu(FileSystem &cur, size_t i)
 void SystemStat(FileSystem& cur)
 {
 	std::cout << cur.Info();
+	std::getchar();
 }
 void WorkFile(FileSystem& cur)
 {
 	RunMenu(cur, file_);
 }
-
 void WorkCat(FileSystem& cur)
 {
 	RunMenu(cur, catalog_);
@@ -122,16 +122,18 @@ void ChangeCurCat(FileSystem& cur)
 	std::cin >> CatAdress;
 	try {
 		cur.GoTo(CatAdress);
-		std::cout;
 	}
 	catch (std::exception &ex) {
 		std::cout << ex.what() << std::endl;
+		std::getchar();
 	}
-
 }
 void SaveSystem(FileSystem& cur)
 {
-
+	cur.Save_UserTable("Users.txt");
+	cur.Save_Structure("Structure3.txt");
+	std::cout << "System saved" << std::endl;
+	std::getchar();
 }
 
 //string menu_user_table[]
@@ -206,7 +208,10 @@ void RenameObject(FileSystem& system)
 }
 void CopyObject(FileSystem& system)
 {
-	std::cout << "Come here later" << std::endl;
+	string object_name;
+	std::cout << "Choose object (name): " << std::endl;
+	std::cin >> object_name;
+
 	std::getchar();
 }
 void TransferObject(FileSystem& system)
@@ -227,6 +232,7 @@ void AddNewObject(FileSystem& system)
 void ShowCatInfo(FileSystem& system)
 {
 	std::cout << system.GetCurCat()->Info();
+	std::getchar();
 }
 
 //string menu_file[]

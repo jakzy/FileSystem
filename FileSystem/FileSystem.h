@@ -3,6 +3,7 @@
 #include <random>
 #include <fstream>
 #include <cstdlib>
+#include <queue>
 
 using std::map;
 using std::vector;
@@ -50,6 +51,9 @@ public:
 	ID GetAdmin() {return ADMIN;}
 	size_t GetSize() { return size; }
 	size_t GetCapacity() { return capacity; }
+
+	void Set_CurCat(Catalog* newCur) { curCatalog = newCur; }
+
 	void Start(ID user);
 	void Finish();
 	//!Edit user table
@@ -62,9 +66,11 @@ public:
 	void ChangeCurUser(ID newUser);
 	void ChangeFileType(File&);
 	string Info();
+	
 	void Rename(string oldName, string newName);
 	void Delete(string name);
 	void Add(Object* added);
+	Object* Copy(Object* cur);
 
 	void SaveSystem() {};
 
@@ -75,4 +81,5 @@ public:
 	void Save_UserTable(std::string FILE_usTable);
 
 	void Fill_Structure(string FILE_structure);
+	void Save_Structure(string FILE_structure);
 };

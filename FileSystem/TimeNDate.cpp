@@ -19,7 +19,7 @@ void Time::SetTime(size_t hr, size_t mn, size_t sc) {
 }
 string Time::Show() {
 	std::ostringstream out;
-	out << hour << ":" << min << ":" << sec;
+	out << hour << " " << min << " " << sec;
 	return out.str();
 }
 
@@ -40,6 +40,6 @@ void Date::SetDate(size_t hour, size_t min, size_t sec, size_t dy, size_t mon, s
 }
 string Date::Show() {
 	std::ostringstream out;
-	out << day << "/" << month << "/" << year << "\t" << time.Show();
+	out << day << " " << month << " " << year << "\t" << time.Show();
 	return out.str();
 }

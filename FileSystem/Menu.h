@@ -6,8 +6,8 @@ using std::string;
 static vector<string> menu_system = { "1. Show system statistic", "2. Work with file in the buffer", "3. Work with current catalog", "4. Edit user table",
 	"5. Change current user","6. Change current catalog", "7. Save system", "CTRL+Z to finish work" };
 static vector<string> menu_user_table = { "1. Show user table", "2. Add a new user", "3. Delete user", "4. Edit user profile", "CTRL+Z to go to main menu" };
-static vector<string> menu_catalog = { "1. Show catalog", "2. Rename object", "3. Copy object", "4. Transfer object",
-	"5. Add file from buf", "6. Create a new object", "7. Show catalog info", "CTRL+Z to go to main menu" };
+static vector<string> menu_catalog = { "1. Show catalog", "2. Rename object", "3. Copy object to buf", "4. Remove object to buf",
+	"5. Add object from buf", "6. Create a new object", "7. Show catalog info", "CTRL+Z to go to main menu" };
 static vector<string> menu_file = { "1. Open to read", "2. Open to write", "3. Run file", "4. Show file info", "5. Show my access rights",
 	"6. Edit users' access rigths table", "7. Change file type", "CTRL+Z to go to main menu" };
 static vector<string> menu_WOfile = { "1. Add info", "2. Clear file", "3. Rewrite file", "CTRL+Z to go to FILE menu" };

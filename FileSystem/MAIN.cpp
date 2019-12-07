@@ -24,6 +24,7 @@ int main()
 	catch (std::exception &ex) {
 		std::cout << ex.what();
 	}
+	system.Set_CurCat(system.GetRoot());
 	std::getchar();
 	try {
 		RunMenu(system, 0);
@@ -31,7 +32,6 @@ int main()
 	catch (std::exception &ex) {
 		std::cout << ex.what();
 	}
-	system.Save_UserTable("Users.txt");
 	/*
 	UserAccess guests = { false, false, false };
 	UserAccess superUser = { true, true, true };
@@ -44,5 +44,6 @@ int main()
 	system.GetCurCat()->Write(system.GetCurUser(), ptr);
 	std::cout << system.GetCurCat()->Show();
 	std::cout << system.GetCurCat()->Info();*/
+
 	return 0;
 }

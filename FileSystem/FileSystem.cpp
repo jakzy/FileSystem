@@ -68,12 +68,21 @@ void FileSystem::DeleteFrom_UserTable(ID user) {
 			else {
 				vector <Object*>::iterator itFile = iter->second.GetObjects()->begin();
 				vector <Object*>* adm = userTable.find(ADMIN)->second.GetObjects();
-				while ((iter->second.GetObjects()->size() > 0)&&(itFile != iter->second.GetObjects()->end())) {
+				
+				for (size_t i = 0; i < iter->second.GetObjects()->size(); )
+				{
+					vector <Object*>::iterator itFile = iter->second.GetObjects()->begin();
 					(*itFile)->ChangeOwner(ADMIN, curUser, ADMIN);
 					adm->push_back(*itFile);
 					iter->second.GetObjects()->erase(itFile);
-					itFile++;
 				}
+
+
+		/*		while ((iter->second.GetObjects()->size() > 0)&&(itFile != iter->second.GetObjects()->end())) {
+					(*itFile)->ChangeOwner(ADMIN, curUser, ADMIN);
+					adm->push_back(*itFile);
+					iter->second.GetObjects()->erase(itFile);
+				}*/
 				userTable.erase(iter);
 			}
 
@@ -116,7 +125,19 @@ void FileSystem::ChangeFileType(File& file) {
 	}
 }
 string FileSystem::Info() {
-	return "empty";
+	std::queue <Object*> objects_in_work;
+	std::ostringstream result;
+	objects_in_work.push(root);
+	while (objects_in_work.size() != 0) {
+		if (objects_in_work.front()->iAm() == Catalog_) {
+			map<string, Object*>::iterator iter = (static_cast <Catalog*>(objects_in_work.front()))->GetCatalogDescriptor()->begin();
+			for (iter; iter != (static_cast <Catalog*>(objects_in_work.front()))->GetCatalogDescriptor()->end(); iter++)
+				objects_in_work.push(iter->second);
+		}
+		result << objects_in_work.front()->Info() << std::endl;
+		objects_in_work.pop();
+	}
+	return result.str();
 }
 void FileSystem::Rename(string oldName, string newName) {
 	try {
@@ -126,6 +147,24 @@ void FileSystem::Rename(string oldName, string newName) {
 		throw ex;
 	}
 }
+
+Object* FileSystem::Copy(Object* cur) {
+	Object* result;
+	if (cur->iAm() == Catalog_) {
+		result = new Catalog(*(static_cast<Catalog*>(cur)));
+		static_cast<Catalog*>(result)->Set_CatalogDescriptor();
+		map<string, Object*>::iterator iter = static_cast<Catalog*>(cur)->GetCatalogDescriptor()->begin();
+		for (iter; iter != (static_cast<Catalog*>(cur)->GetCatalogDescriptor()->end()); iter++) {
+			(static_cast<Catalog*>(result)->GetCatalogDescriptor().insert(("new_" + iter->first), Copy(iter->second));
+		}
+	}
+	else if (cur->iAm() == File_) {
+		result = new File(*(static_cast<File*>(cur)));
+		result->GetFileDescriptor().first += "new_";
+		return result;
+	}
+}
+
 void FileSystem::Delete(string name) {
 	map <string, Object*>::iterator iter;
 	iter = (*curCatalog).GetCatalogDescriptor()->find(name);
@@ -142,22 +181,28 @@ void FileSystem::Delete(string name) {
 }
 string FileSystem::GoTo(string& input) {
 	size_t i = input.find_first_of('/');
-	string next = input.substr(i, input.find_first_of('/', i + 1));
-	input.erase(i, next.length());
+	string next("");
+	try {
+		next = input.substr(0, i);
+		input.erase(i, next.length() + 1);
+	}
+	catch (std::exception &ex) {
+		return input;
+	}
 	if (i == 0) {
 		curCatalog = root;
 		GoTo(input);
 	}
 	else{
 		map <string, Object*>::iterator iter;
-		iter = (*curCatalog).GetCatalogDescriptor()->find(input);
+		iter = (*curCatalog).GetCatalogDescriptor()->find(next);
 		if (iter == (*curCatalog).GetCatalogDescriptor()->end()) {
-			throw std::exception("Invalid file adress");
+			throw std::exception("Invalid catalog adress");
 		}
 		else {
 			if ( /*(input.find_first_of('/') != input.npos) && */(iter->second->iAm() == Catalog_) ) {
 				curCatalog = dynamic_cast<Catalog*>(iter->second);
-				GoTo(next);
+				GoTo(input);
 			}
 		}
 	}
@@ -210,7 +255,6 @@ void FileSystem::Save_UserTable(std::string FILE_usTable)
 	if (!usTable) {
 		throw std::exception("Can't open this file");
 	}
-	int id, key;
 	std::string name;
 	map <ID, User>::iterator iter = userTable.begin();
 	for(iter; iter != userTable.end(); iter++) {
@@ -224,7 +268,7 @@ void FileSystem::Fill_Structure(std::string FILE_structure)
 	std::ifstream structFile(FILE_structure);
 	std::string buf;
 	int id = 0, key = 0;
-
+	bool root_fl = 1;
 
 	size_t main_block = 0;
 	while (getline(structFile, buf)) {
@@ -306,11 +350,11 @@ void FileSystem::Fill_Structure(std::string FILE_structure)
 			Object* newObject = nullptr;
 			if (type == 'C') {
 				//if ()
-				Catalog *newCat = new Catalog(id, GetCurCat(), accTable, others, descr_offset, name, size);
+				Catalog *newCat = new Catalog(owner, GetCurCat(), accTable, others, descr_offset, name, size);
 				newObject = newCat;
 			}
 			else if (type == 'F') {
-				File *newFile = new File(id, GetCurCat(), accTable, others, streamTable, size, name, created, modified);
+				File *newFile = new File(owner, GetCurCat(), accTable, others, streamTable, size, name, created, modified);
 				newObject = newFile;
 			}
 			else if (type == 'E') {
@@ -319,9 +363,76 @@ void FileSystem::Fill_Structure(std::string FILE_structure)
 			}
 			map<ID, User>::iterator iter = userTable.find(owner);
 			iter->second.GetObjects()->push_back(newObject);
-			curCatalog->GetCatalogDescriptor()->insert(pair<string, Object*>(name, newObject));
+			if (root_fl) {
+				root->GetAccessTable() = static_cast <Catalog*>(newObject)->GetAccessTable();
+				root->ChangeOwner(static_cast <Catalog*>(newObject)->GetOwner(), ADMIN, ADMIN);
+				root->IncSZ(static_cast <Catalog*>(newObject)->GetSize());
+				root_fl = 0;
+			}
+			else
+				curCatalog->GetCatalogDescriptor()->insert(pair<string, Object*>(name, newObject));
 		}
 
 	}
 	structFile.close();
+}
+void FileSystem::Save_Structure(std::string FILE_structure)
+{
+	std::ofstream structure(FILE_structure);
+	if (!structure) {
+		throw std::exception("Can't open/create this file");
+	}
+	size_t cur_block = 0, next_free_block = 1,
+		   catSZ = 0;
+	std::queue <Object*> objects_in_work;
+	std::queue <size_t> catalog_SZ;
+	objects_in_work.push(root);
+	bool root_fl = 1;
+
+	while (objects_in_work.size() != 0) {
+		std::ostringstream result_string;
+		Object* cur = objects_in_work.front();
+		result_string << cur_block << "\t" << (ObjectName[cur->iAm()])[0] << "\t" << cur->GetSize() << "\t" << cur->GetOwner() << "\t";
+
+		vector < pair<ID, UserAccess> >::iterator iter = cur->GetAccessTable().begin();
+		result_string << "(";
+		for (iter; iter != cur->GetAccessTable().end(); iter++)
+			result_string << iter->first << " " << iter->second.read << iter->second.write << iter->second.run << "\t";
+		result_string << ")\t";
+
+		result_string << cur->Get_DefaultAccess().read << cur->Get_DefaultAccess().write << cur->Get_DefaultAccess().run << "\t" << cur->GetFileDescriptor().first << "\t";
+
+		if (cur->iAm() == Catalog_) {
+			catalog_SZ.push(catSZ);
+			map<string, Object*>::iterator iter = (static_cast <Catalog*>(cur))->GetCatalogDescriptor()->begin();
+			for (iter; iter != (static_cast <Catalog*>(cur))->GetCatalogDescriptor()->end(); iter++) {
+				objects_in_work.push(iter->second);
+				catalog_SZ.back()++;
+			}
+			result_string << "(" << next_free_block++ << ")";
+			//cur_block++;
+		}
+		else if (cur->iAm() == File_) {
+			vector<Stream>::iterator iter = (static_cast <File*>(cur))->Get_StreamTable()->begin();
+			result_string << "(";
+			for (iter; iter != (static_cast <File*>(cur))->Get_StreamTable()->end(); iter++)
+				result_string << iter->Get_Name() << " " << iter->Get_Offset() << "\t";
+			result_string << ")\t";
+
+			result_string << (static_cast <File*>(cur))->Get_Created().Show() << "\t" << (static_cast <File*>(cur))->Get_Modified().Show();
+		}
+		else if (cur->iAm() == EncryptedFile_) {
+			std::cout << "Come here later" << std::endl;
+		}
+		objects_in_work.pop();
+		if (--catalog_SZ.front() == 0) {
+			cur_block++;
+			catalog_SZ.pop();
+		}
+		structure << result_string.str() << std::endl;
+		if (root_fl) {
+			cur_block++;
+			root_fl = FALSE;
+		}
+	}
 }

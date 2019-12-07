@@ -49,8 +49,9 @@ public:
 	virtual void Write(ID user) = 0;
 	virtual void Run(string to, ID user) = 0;*/
 
-	const vector< pair<ID, UserAccess> >& GetAccessTable() const { return access; }
+	/*const */vector< pair<ID, UserAccess> >& GetAccessTable() /*const*/ { return access; }
 	UserAccess GetAccess(ID user);
+	UserAccess Get_DefaultAccess() { return others_access; }
 	pair <string, Catalog*>& GetFileDescriptor() { return fileDescriptor; }
 	const unsigned GetSize() { return size; }
 	const ID GetOwner() { return owner; }
@@ -114,6 +115,8 @@ protected:
 	static const size_t size = 128;
 public:
 	Stream( size_t off, string nm = "MAIN") : name(nm), offset(off) {}
+	string Get_Name() { return name; }
+	size_t Get_Offset() { return offset; }
 };
 
 class File : public Object
@@ -137,6 +140,10 @@ public:
 		strDesc = nullptr;
 		fileDescriptor = pair<string, Catalog*>{ name, cat };
 	}
+
+	vector<Stream> *Get_StreamTable(){ return streamDescriptor; };
+	Date Get_Created() { return created; }
+	Date Get_Modified() { return modified; }
 
 	string Info();
 	void Read(ID user);
@@ -188,6 +195,7 @@ public:
 	}
 
 	size_t Get_virtAdr() { return virtualAdress; }
+	void Set_CatalogDescriptor(map<string, Object*>* newDescr = new map<string, Object*>) { catalogDescriptor = newDescr; }
 
 	string Info();
 	void Read(ID user);
