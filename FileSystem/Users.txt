@@ -5,3 +5,4 @@
 4	Manager	5
 5	Cleaner	7
 6	Boss	11
+

@@ -2,7 +2,8 @@
 
 #undef max
 
-using std::vector;
+//using std::vector;
+using my_vector::vector;
 using std::map;
 
 void FileSystem::Start(ID user) {
@@ -149,19 +150,16 @@ void FileSystem::Rename(string oldName, string newName) {
 }
 
 Object* FileSystem::Copy(Object* cur) {
-	Object* result;
-	if (cur->iAm() == Catalog_) {
-		result = new Catalog(*(static_cast<Catalog*>(cur)));
-		static_cast<Catalog*>(result)->Set_CatalogDescriptor();
-		map<string, Object*>::iterator iter = static_cast<Catalog*>(cur)->GetCatalogDescriptor()->begin();
-		for (iter; iter != (static_cast<Catalog*>(cur)->GetCatalogDescriptor()->end()); iter++) {
-			(static_cast<Catalog*>(result)->GetCatalogDescriptor().insert(("new_" + iter->first), Copy(iter->second));
+	if (cur == nullptr)
+		throw std::exception("This object doesn't exist");
+	else {
+		try {
+			Object* result = cur->Copy(curUser);
+			return result;
 		}
-	}
-	else if (cur->iAm() == File_) {
-		result = new File(*(static_cast<File*>(cur)));
-		result->GetFileDescriptor().first += "new_";
-		return result;
+		catch (std::exception &ex) {
+			throw ex;
+		}
 	}
 }
 

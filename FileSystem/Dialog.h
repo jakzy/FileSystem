@@ -2,6 +2,9 @@
 #include "FileSystem.h"
 #include "Menu.h"
 
+using my_vector::vector;
+//using std::vector;
+
 void ShowMenu(size_t i);
 void RunMenu(FileSystem &cur, size_t i);
 
@@ -58,14 +61,14 @@ void DeleteEncAccess(FileSystem &fs);
 
 //arrays
 
-static std::vector< std::function<void(FileSystem &fs)> > system_menu = { SystemStat, WorkFile, WorkCat, EditUserTable, ChangeCurUser, ChangeCurCat, SaveSystem };
-static std::vector< std::function<void(FileSystem &fs)> > user_table_menu = { ShowUserTable, AddUser, DeleteUser, EditUser };
-static std::vector< std::function<void(FileSystem &fs)> > catalog_menu = { ShowCatalog, RenameObject, CopyObject, TransferObject, AddFromBuf, AddNewObject, ShowCatInfo };
-static std::vector< std::function<void(FileSystem &fs)> > file_menu = { OpenRead, OpenWrite, Run, ShowInfo, ShowCurAccess, EditUserAccess, ChangeType };
-static std::vector< std::function<void(FileSystem &fs)> > WOfile_table_menu = { AddInfo, ClearFile, RewriteFile };
-static std::vector< std::function<void(FileSystem &fs)> > ROfile_table_menu = { ShowFile };
-static std::vector< std::function<void(FileSystem &fs)> > access_menu = { AddAccess, ChangeAccess, ChangeGuestAccess, DeleteAccess };
-static std::vector< std::function<void(FileSystem &fs)> > enc_access_menu = { AddEncAccess, DeleteEncAccess };
+static vector< std::function<void(FileSystem &fs)> > system_menu = { SystemStat, WorkFile, WorkCat, EditUserTable, ChangeCurUser, ChangeCurCat, SaveSystem };
+static vector< std::function<void(FileSystem &fs)> > user_table_menu = { ShowUserTable, AddUser, DeleteUser, EditUser };
+static vector< std::function<void(FileSystem &fs)> > catalog_menu = { ShowCatalog, RenameObject, CopyObject, TransferObject, AddFromBuf, AddNewObject, ShowCatInfo };
+static vector< std::function<void(FileSystem &fs)> > file_menu = { OpenRead, OpenWrite, Run, ShowInfo, ShowCurAccess, EditUserAccess, ChangeType };
+static vector< std::function<void(FileSystem &fs)> > WOfile_table_menu = { AddInfo, ClearFile, RewriteFile };
+static vector< std::function<void(FileSystem &fs)> > ROfile_table_menu = { ShowFile };
+static vector< std::function<void(FileSystem &fs)> > access_menu = { AddAccess, ChangeAccess, ChangeGuestAccess, DeleteAccess };
+static vector< std::function<void(FileSystem &fs)> > enc_access_menu = { AddEncAccess, DeleteEncAccess };
 
-static std::vector< std::vector<std::function<void(FileSystem &fs)>> > MENU_VECTOR = { system_menu, user_table_menu, catalog_menu, 
+static vector< vector<std::function<void(FileSystem &fs)>> > MENU_VECTOR = { system_menu, user_table_menu, catalog_menu, 
 	file_menu, WOfile_table_menu, ROfile_table_menu, access_menu, enc_access_menu };

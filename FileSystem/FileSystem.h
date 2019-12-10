@@ -1,12 +1,11 @@
 #pragma once
 #include "Object.h"
 #include <random>
-#include <fstream>
-#include <cstdlib>
 #include <queue>
 
 using std::map;
-using std::vector;
+//using std::vector;
+using my_vector::vector;
 using std::pair;
 using std::string;
 
@@ -32,16 +31,11 @@ public:
 		UserAccess acc = { 1,1,1 };
 		def.push_back(pair<ID, UserAccess>( ADMIN, acc ));
 		map <string, Object*>* catDesc_temp = new map <string, Object*>;
-		root = new Catalog (ADMIN, nullptr, def, acc);
 
+		root = new Catalog (ADMIN, nullptr, def, acc);
 		curCatalog = root;
 		buf = nullptr;
-		//userTable.insert({ 0, {"ADMIN",1} }); //KEYS???????????
-		//userTable.insert({ 1, {"guest",0} });
 	}
-	
-
-	
 
 	Catalog* GetRoot() { return root; }
 	Catalog* GetCurCat() { return curCatalog; }
@@ -53,6 +47,7 @@ public:
 	size_t GetCapacity() { return capacity; }
 
 	void Set_CurCat(Catalog* newCur) { curCatalog = newCur; }
+	void Set_Buf(Object* new_buf) { buf = new_buf; }
 
 	void Start(ID user);
 	void Finish();
