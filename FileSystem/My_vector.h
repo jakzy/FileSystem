@@ -106,7 +106,6 @@ namespace my_vector {
 		typedef std::allocator_traits<Allocator> allocator_t;
 
 
-
 		size_t capacity_of_size(size_t size) { return (size / _additional_size + 1) * _additional_size; }
 		size_t current_min_capacity() { return capacity_of_size(_size); }
 		void destroy_array(T*& _array, size_t& _constructed_count) {

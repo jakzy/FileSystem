@@ -67,6 +67,19 @@ public:
 		else
 			throw std::exception("ACCESS DENIED");
 	}
+	void Delete_Access(ID deleted_user, ID cur_user) {
+		if (cur_user == owner) {
+			vector< pair<ID, UserAccess>>::iterator iter = access.begin();
+			while (iter != access.end())
+				if (iter->first == deleted_user) {
+					access.erase(iter);
+					return;
+				}
+			throw std::exception("This user doesn't exist");
+		}
+		else
+			throw std::exception("ACCESS DENIED");
+	}
 	//virtual void Copy() = 0;
 	/*virtual void Write(ID user) = 0;
 	virtual void Run(string to, ID user) = 0;*/

@@ -1,6 +1,7 @@
 #pragma once
 #include "FileSystem.h"
 #include "Menu.h"
+#undef max
 
 using my_vector::vector;
 //using std::vector;
@@ -72,3 +73,8 @@ static vector< std::function<void(FileSystem &fs)> > enc_access_menu = { AddEncA
 
 static vector< vector<std::function<void(FileSystem &fs)>> > MENU_VECTOR = { system_menu, user_table_menu, catalog_menu, 
 	file_menu, WOfile_table_menu, ROfile_table_menu, access_menu, enc_access_menu };
+
+inline void Clear_input() {
+	std::cin.clear();
+	std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+}

@@ -57,8 +57,7 @@ void RunMenu(FileSystem &cur, size_t i)
 				//std::cout << "Press ENTER to continue";
 				//std::getchar();
 			}
-		std::cin.clear();
-		std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+		Clear_input();
 	} while (choise > 0);
 	if (i == system_) {
 		cur.SaveSystem();
@@ -237,22 +236,25 @@ void CopyObject(FileSystem& system)
 	string object_name;
 	std::cout << "Choose object (name): " << std::endl;
 	std::cin >> object_name;
+	Clear_input();
 	try {
 		map<string, Object*>::iterator iter = system.GetCurCat()->GetCatalogDescriptor()->find(object_name);
-		if (iter != system.GetCurCat()->GetCatalogDescriptor()->end())
+		if (iter != system.GetCurCat()->GetCatalogDescriptor()->end()) {
 			system.Set_Buf(system.Copy(iter->second));
-		std::cout << "Object was succesfully copied. \nNow you can work with it from main menu." << std::endl;
+			std::cout << "Object was succesfully copied. \nNow you can work with it from main menu." << std::endl;
+		}
+		else std::cout << "Object doesn't exist" << std::endl;
 	}
 	catch (std::exception &ex) {
 		std::cout << ex.what() << std::endl;
 	}
-	std::getchar();
 }
 void TransferObject(FileSystem& system)
 {
 	string object_name;
 	std::cout << "Choose object (name): " << std::endl;
 	std::cin >> object_name;
+	Clear_input();
 	try {
 		map<string, Object*>::iterator iter = system.GetCurCat()->GetCatalogDescriptor()->find(object_name);
 		if (iter != system.GetCurCat()->GetCatalogDescriptor()->end()) {
@@ -263,8 +265,9 @@ void TransferObject(FileSystem& system)
 				ptr->DecSZ(system.GetBuf()->GetSize());
 				ptr = ptr->GetFileDescriptor().second;
 			}
+			std::cout << "Object was succesfully copied and removed from the catalog.\nNow you can work with it from main menu." << std::endl;
 		}
-		std::cout << "Object was succesfully copied and removed from the catalog.\nNow you can work with it from main menu." << std::endl;
+		else std::cout << "Object doesn't exist" << std::endl;
 	}
 	catch (std::exception &ex) {
 		std::cout << ex.what() << std::endl;
@@ -291,6 +294,7 @@ void AddNewObject(FileSystem& system)
 	size_t choise;
 	try {
 		std::cin >> choise;
+
 		if ((std::cin.good()) && (choise < 2)) {
 			Object * new_object = nullptr;
 			Catalog *new_cat;
@@ -298,10 +302,12 @@ void AddNewObject(FileSystem& system)
 			bool read = 0, write = 0, run = 0;
 			std::cout << "Set default user access (*read* *write* *run*, \"0\" for prohibited, \"1\" for accessible):" << std::endl;
 			std::cin >> read >> write >> run;
+			Clear_input();
 			UserAccess def = { read, write, run };
 			string name = "defaul_name";
 			std::cout << "Enter name of the object:" << std::endl;
 			std::cin >> name;
+			Clear_input();
 			size_t size = 0;
 			vector<pair<ID, UserAccess>> new_acc;
 			switch (choise) {
@@ -311,7 +317,8 @@ void AddNewObject(FileSystem& system)
 				break;
 			case File_:
 				std::cout << "Enter size of the file:" << std::endl;
-				std::cin >> name;
+				std::cin >> size;
+				Clear_input();
 				new_file = new File(system.GetCurUser(), system.GetCurCat(), new_acc, def, new vector<Stream>, size, name);
 				new_object = new_file;
 				break;
@@ -389,6 +396,7 @@ void RewriteFile(FileSystem& cur)
 	std::cout << "Enter new information: " << std::endl;
 	std::string data;
 	std::cin >> data;
+	Clear_input();
 	try {
 		static_cast <File*>(cur.GetBuf())->Rewrite(data, cur.GetCurUser());
 		std::cout << "You succesfully edited this file" << std::endl;
@@ -424,9 +432,11 @@ void AddAccess(FileSystem& cur)
 	ID id;
 	std::cout << "Enter ID of a new user:" << std::endl;
 	std::cin >> id;
+	Clear_input();
 	bool read = 0, write = 0, run = 0;
 	std::cout << "Set the user's access (*read* *write* *run*, \"0\" for prohibited, \"1\" for accessible):" << std::endl;
 	std::cin >> read >> write >> run;
+	Clear_input();
 	UserAccess def = { read, write, run };
 	try {
 		cur.GetBuf()->Add_Access(def, id, cur.GetCurUser());
@@ -446,6 +456,7 @@ void ChangeGuestAccess(FileSystem& cur)
 	bool read = 0, write = 0, run = 0;
 	std::cout << "Set default user access (*read* *write* *run*, \"0\" for prohibited, \"1\" for accessible):" << std::endl;
 	std::cin >> read >> write >> run;
+	Clear_input();
 	UserAccess def = { read, write, run };
 	try {
 		cur.GetBuf()->Set_DefaultAccess(def, cur.GetCurUser());
@@ -458,7 +469,14 @@ void ChangeGuestAccess(FileSystem& cur)
 void DeleteAccess(FileSystem& cur)
 {
 	std::cout << "Enter user's ID:" << std::endl;
-
+	ID id;
+	std::cin >> id;
+	try {
+		cur.GetBuf()->Delete_Access(id, cur.GetCurUser());
+	}
+	catch (std::exception &ex) {
+		std::cout << ex.what() << std::endl;
+	}
 	std::getchar();
 }
 

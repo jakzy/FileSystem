@@ -77,9 +77,7 @@ void FileSystem::DeleteFrom_UserTable(ID user) {
 					adm->push_back(*itFile);
 					iter->second.GetObjects()->erase(itFile);
 				}
-
-
-		/*		while ((iter->second.GetObjects()->size() > 0)&&(itFile != iter->second.GetObjects()->end())) {
+				/*while ((iter->second.GetObjects()->size() > 0)&&(itFile != iter->second.GetObjects()->end())) {
 					(*itFile)->ChangeOwner(ADMIN, curUser, ADMIN);
 					adm->push_back(*itFile);
 					iter->second.GetObjects()->erase(itFile);
@@ -184,7 +182,7 @@ string FileSystem::GoTo(string& input) {
 		next = input.substr(0, i);
 		input.erase(i, next.length() + 1);
 	}
-	catch (std::exception &ex) {
+	catch (std::exception) {
 		return input;
 	}
 	if (i == 0) {
